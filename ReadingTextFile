@@ -1,0 +1,86 @@
+ public static PersonalLibrary FileReader (out string path)
+        {
+            PersonalLibrary pl = new PersonalLibrary ();
+            OpenFileDialog textFile = new OpenFileDialog ();
+            DirectoryInfo info = new DirectoryInfo (Directory.GetCurrentDirectory ());
+            textFile.Filter = "text files|*.txt;* .text| all files|*.*";
+            path = Directory.GetCurrentDirectory ();
+            info = Directory.GetParent (path);
+            info = info.Parent;
+            textFile.InitialDirectory = info.FullName + @"\TestData";
+            textFile.Title = "Select the file that you would like to import";
+
+            if (textFile.ShowDialog () == DialogResult.Cancel)
+            {
+                MessageBox.Show ("The operation was canceled by user exiting application. Program Canceled", "No file Selected");
+            }
+
+            try
+            {
+                string file = textFile.FileName;
+                string[] fileContent = File.ReadAllLines (textFile.FileName);
+                for (int i = 0; i < fileContent.Length; i++)
+                {
+                    var linesplit = fileContent[i].Split ("|".ToCharArray ());
+                    if (i == 0)
+                    {
+                        Person owner = new Person ();
+                        for (int j = 0; j < linesplit.Length; j++)
+                        {
+                            switch (j)
+                            {
+                                case 0:
+                                    owner.name = linesplit[j];
+                                    break;
+                                case 1:
+                                    owner.streetAddr = linesplit[j];
+                                    break;
+                                case 2:
+                                    owner.city = linesplit[j];
+                                    break;
+                                case 3:
+                                    owner.state = linesplit[j];
+                                    break;
+                                case 4:
+                                    owner.zip = linesplit[j];
+                                    break;
+                                case 5:
+                                    owner.id = linesplit[j];
+                                    break;
+                                case 6:
+                                    owner.phoneNum = linesplit[j];
+                                    break;
+                                case 7:
+                                    owner.email = linesplit[j];
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        pl.Owner = owner;
+                    }
+                    else
+                    {
+                        Book book = new Book ();
+                        Enum.TryParse (linesplit[0], out BookType type);
+                        book.bookType = type;
+                        book.title = linesplit[1];
+                        book.author = linesplit[2];
+                        book.coAuthor = linesplit[3];
+                        Enum.TryParse (linesplit[4], out Category cat);
+                        book.genre = cat;
+                        Decimal.TryParse (linesplit[5], out decimal dec);
+                        book.price = dec;
+                        pl.Library.Add (book);
+                    }
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show (ex.Message);
+            }
+            return pl;
+        }
